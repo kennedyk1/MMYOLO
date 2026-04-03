@@ -1,0 +1,110 @@
+ATTENTION RECOMMENDATIONS
+
+MATRIX
+
+SCENARIO: raw 6 channels
+
+- option: no attention
+  recommendation: acceptable
+  reason: clean baseline
+
+- option: early ChannelAttention
+  recommendation: recommended
+  reason: helps weight raw modalities and channels
+
+- option: early SpatialAttention
+  recommendation: avoid
+  reason: there is usually too little semantic structure at the beginning
+
+- option: CBAM too early
+  recommendation: avoid
+  reason: the spatial component is likely to be premature
+
+- option: CBAM after the first C3k2
+  recommendation: acceptable
+  reason: features are already less raw at that point
+
+- option: manual ChannelAttention + SpatialAttention at the same point
+  recommendation: avoid
+  reason: this becomes a hand-built CBAM with unnecessary complexity
+
+- option: CBAM + ChannelAttention at the same point
+  recommendation: redundant
+  reason: CBAM already includes channel attention
+
+- option: CBAM + SpatialAttention at the same point
+  recommendation: redundant
+  reason: CBAM already includes spatial attention
+
+- option: CBAM + ChannelAttention + SpatialAttention
+  recommendation: redundant
+  reason: this repeats the same idea three times
+
+- option: several attention modules stacked in the stem
+  recommendation: avoid
+  reason: too much complexity too early
+
+
+SCENARIO: multi-stem
+
+- option: no attention
+  recommendation: acceptable
+  reason: strong and well-structured baseline
+
+- option: ChannelAttention after fusion
+  recommendation: recommended
+  reason: a very good point to weight already processed modalities
+
+- option: CBAM after fusion
+  recommendation: recommended
+  reason: this is the best place to use CBAM
+
+- option: SpatialAttention after fusion
+  recommendation: acceptable
+  reason: there is already more useful spatial structure
+
+- option: ChannelAttention in every stem in the first test
+  recommendation: avoid
+  reason: too many variables at once
+
+- option: CBAM in every stem
+  recommendation: avoid
+  reason: heavy and unnecessary for an initial experiment
+
+- option: ChannelAttention in every stem + another one after fusion
+  recommendation: avoid
+  reason: probably too much for a first ablation
+
+- option: CBAM after fusion + ChannelAttention at the same point
+  recommendation: redundant
+  reason: CBAM already covers that function
+
+- option: CBAM after fusion + SpatialAttention at the same point
+  recommendation: redundant
+  reason: same reason
+
+- option: several CBAM blocks spread across the early network
+  recommendation: avoid
+  reason: high cost and poor experimental readability
+
+
+INTERACTION WITH YOLO26
+
+- point: near C2PSA
+  recommendation: avoid changing this in the first experiment
+
+- point: on top of the final C3k2(..., attn=True) block
+  recommendation: avoid this at the beginning
+
+- point: before the backbone shares multimodal information
+  recommendation: good place for ChannelAttention in raw 6-channel setups
+
+- point: immediately after stem fusion
+  recommendation: best place for CBAM in multi-stem setups
+
+
+TOP 3 OPTIONS
+
+1. raw 6 channels + early ChannelAttention
+2. multi-stem without attention
+3. multi-stem + post-fusion CBAM
