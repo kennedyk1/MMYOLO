@@ -173,7 +173,7 @@ def create_attention_yolo(
     yolo.model = patched_model
     yolo.overrides["model"] = str(architecture_path)
     yolo.overrides["task"] = "detect"
-    yolo.overrides["architecture"] = str(architecture_path)
+    yolo.overrides.pop("architecture", None)
     return yolo
 
 
@@ -216,6 +216,7 @@ def train_attention_yolo(
         channel_order=channel_order,
         verbose=train_kwargs.pop("verbose", True),
     )
+    yolo.overrides.pop("architecture", None)
     return yolo.train(
         data=str(data),
         trainer=AttentionDetectionTrainer,
